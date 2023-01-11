@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="js/vue2.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div class="input-num">
+            <button @click="sub">-</button>
+            <span>{{num}}</span>
+            <button @click="add">+</button>
+        </div>
+    </div>
+</body>
+<script>
+    var vm=new Vue({
+        el:"#app",
+        data: {
+            num: 1
+        },
+        methods: {
+            add: function () {
+                this.num++;
+            },
+            sub: function () {
+                if(this.num>0){
+                    this.num--;
+                }
+                else {
+                    alert("不能再减少了！")
+                }
+            }
+        }
+    })
+</script>
+</html>

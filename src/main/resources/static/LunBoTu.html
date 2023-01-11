@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="js/vue2.js"></script>
+</head>
+<body>
+    <div id="app">
+        <a href="javascript:void(0)" @click="prev" v-show="index!=0">上一张</a>
+        <a href="javascript:void(0)" @click="next" v-show="index<imgArr.length-1">下一张</a>
+        <img :src="imgArr[index]">
+    </div>
+</body>
+<script>
+    var vm=new Vue({
+        el:"#app",
+        data:{
+            imgArr:[
+                "./images/1.png",
+                "./images/2.png",
+                "./images/3.png"
+            ],
+            index:0
+        },
+        methods:{
+            prev:function () {
+                this.index--;
+            },
+            next:function () {
+                this.index++;
+            }
+        }
+    })
+</script>
+</html>

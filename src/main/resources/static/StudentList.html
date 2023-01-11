@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+        <script type="text/javascript" src="js/vue2.js"></script>
+        <script type="text/javascript" src="element-ui/lib/index.js"></script>
+        <link rel="stylesheet" href="element-ui/lib/theme-chalk/index.css">
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <style>
+            .el-table .warning-row {
+                background: oldlace;
+            }
+
+            .el-table .success-row {
+                background: #f0f9eb;
+            }
+        </style>
+    </head>
+    <body>
+    <div id="app">
+    <!--表单-->
+    <el-form :inline="true" :model="student" class="demo-form-inline">
+        <el-form-item label="姓名">
+            <el-input v-model="student.sname" placeholder="姓名"></el-input>
+        </el-form-item>
+        <el-form-item label="专业">
+            <el-input v-model="student.major" placeholder="专业"></el-input>
+        </el-form-item>
+        <el-form-item label="状态">
+            <el-select v-model="student.status" placeholder="状态">
+                <el-option label="在校" value="0"></el-option>
+                <el-option label="不在校" value="1"></el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" @click="onSubmit()">查询</el-button>
+        </el-form-item>
+    </el-form>
+
+
+    <el-row>
+            <el-button type="primary" plain>批量删除</el-button>
+            <el-button type="danger" plain @click="dialogFormVisible = true">添加学生</el-button>
+    </el-row>
+
+
+    <el-dialog title="添加学生" :visible.sync="dialogFormVisible">
+        <el-form :model="student">
+            <el-form-item label="姓名" :label-width="formLabelWidth">
+                <el-input v-model="student.sname" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="年龄" :label-width="formLabelWidth">
+                <el-input v-model="student.age" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="专业" :label-width="formLabelWidth">
+                <el-input v-model="student.major" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="状态" :label-width="formLabelWidth">
+                <el-select v-model="student.status" placeholder="请选择活动区域">
+                    <el-option label="在校" value="0"></el-option>
+                    <el-option label="不在校" value="1"></el-option>
+                </el-select>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogFormVisible = false">取 消</el-button>
+            <el-button type="primary" @click="addStudent()">确 定</el-button>
+        </div>
+    </el-dialog>
+
+    <!--表格-->
+    <template>
+        <el-table
+                :data="tableData"
+                style="width: 100%">
+            <el-table-column
+                    type="selection"
+                    width="55"
+                    align="center">
+            </el-table-column>
+            <el-table-column
+                    type="index"
+                    width="50"
+                    align="center">
+            </el-table-column>
+            <el-table-column
+                    prop="sname"
+                    label="姓名"
+                    width="180"
+                    align="center">
+            </el-table-column>
+            <el-table-column
+                    prop="major"
+                    label="专业"
+                    width="180"
+                    align="center">
+            </el-table-column>
+            <el-table-column
+                    prop="age"
+                    label="年龄"
+                    align="center">
+            </el-table-column>
+            <el-table-column
+                    prop="status"
+                    label="状态"
+                    align="center">
+            </el-table-column>
+            <el-table-column label="操作" align="center">
+                <template slot-scope="scope">
+                    <el-button type="primary" @click="updateForm(scope.row)">修改</el-button>
+                    <el-button type="danger" @click="deleteStudent(scope.row)">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <!--修改对话框-->
+        <!-- Form -->
+        <el-dialog title="修改学生" :visible.sync="dialogFormVisible4Edit">
+            <el-form :model="student">
+                <el-form-item label="姓名" :label-width="formLabelWidth">
+                    <el-input v-model="student.sname" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="年龄" :label-width="formLabelWidth">
+                    <el-input v-model="student.age" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="专业" :label-width="formLabelWidth">
+                    <el-input v-model="student.major" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="状态" :label-width="formLabelWidth">
+                    <el-select v-model="student.status" placeholder="请选择状态">
+                        <el-option label="在校" value="0"></el-option>
+                        <el-option label="不在校" value="1"></el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="cancel()">取 消</el-button>
+                <el-button type="primary" @click="updateStudent()">确 定</el-button>
+            </div>
+        </el-dialog>
+
+
+        <!--分页-->
+        <div class="block">
+            <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="page.current"
+                    :page-sizes="[5, 10, 15, 20]"
+                    :page-size="page.size"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="page.total">
+            </el-pagination>
+        </div>
+    </template>
+</div>
+</body>
+<script type="text/javascript">
+    /*var students=[{sid:1,sname:"张三",major:"人工智能",age:20,status:1},
+        {sid:2,sname:"李四",major:"人工智能",age:21,status:1},
+        {sid:3,sname:"王五",major:"软件工程",age:20,status:0}];*/
+    var vm=new Vue({
+        el: '#app',
+        created:function(){
+          this.getAllStudents();
+        },
+        data(){
+            return{
+                //    控制增加学生对话框的显示
+                dialogFormVisible: false,
+                //        学生数据
+                student: {
+                    sid:'',
+                    sname:'',
+                    major:'',
+                    status:'',
+                    age:''
+                },
+                //表格数据
+                tableData:[],
+                //对话框标签宽度
+                formLabelWidth:'120px',
+                //分页条指定当前显示的项
+                page:{
+                    current : 1,
+                    total : 0,
+                    size : 5
+                }
+            }
+        },
+        methods:{
+            //取所有学生数据
+            getAllStudents(){
+                axios.get("http://localhost:8083/students/"+this.page.current+"/"+this.page.size).then((resp)=>{
+                    console.log(resp.data.data);
+                    this.tableData=resp.data.data.records;
+                    this.page=resp.data.data;
+                })
+            },
+            //     处理查询表单
+            onSubmit(){
+                console.log(this.student)
+            },
+            //添加学生
+            addStudent() {
+                console.log(this.student);
+                axios.post("http://localhost:8083/students",this.student).then((resp)=>{
+                    if(resp.data.flag){
+                        this.dialogFormVisible=false;
+                        this.$message.success("添加成功")
+                    }else{
+                        this.$message.error("添加失败")
+                    }
+                }).finally(()=>{
+                    this.getAllStudents();
+                    this.student={};
+                })
+            },
+            deleteStudent(row) {
+                this.$confirm('此操作将永久删除该文件,是否继续','提示',{
+                    confirmButtonText:'确定',
+                    cancelButtonText:'取消',
+                    type:'warning'
+                }).then(()=>{
+                    axios.delete("http://localhost:8083/students/"+row.sid).then((resp)=>{
+                        if (resp.data.flag){
+                            this.$message({
+                                message:'恭喜你，删除成功',
+                                type:'success'
+                            });
+                        }else {
+                            this.$message.error('删除失败')
+                        }
+                    }).finally(()=>{
+                        this.getAllStudents();
+                    })
+                }).catch(()=>{
+                    this.$message({
+                        type:'info',
+                        message:'已取消删除'
+                    })
+                })
+            },
+            //打开表单
+            updateForm(row){
+                this.dialogFormVisible4Edit=true;
+                this.student=row;
+            },
+            //修改学生
+            updateStudent(){
+                axios.put("http://localhost:8083/students",this.student).then((resp)=>{
+                    if(resp.data.flag){
+                        this.$message({
+                            message:'恭喜你，修改成功',
+                            type:'success'
+                        });
+                        this.dialogFormVisible4Edit=false;
+                        this.getAllStudents();
+                        this.student={};
+                    }else {
+                        this.$message.error('修改失败');
+                    }
+                });
+            },
+            //取消操作
+            cancel(){
+                this.dialogFormVisible=false;
+                this.dialogFormVisible4Edit=false;
+                this.student={};
+
+            },
+            handleSizeChange(val) {
+                console.log(`每页 ${val} 条`);
+                this.page.size=val;
+                this.getAllStudents();
+            },
+            handleCurrentChange(val) {
+                console.log(`当前页: ${val}`);
+                this.page.current=val;
+                this.getAllStudents();
+            }
+        }
+    });
+</script>
+<script type="text/javascript">
+    // axios({
+    //     method: 'GET',
+    //     url: "http://localhost:8083/axiosdemo?username=zhangsan"
+    // }).then(function (resp) {
+    //     alert(resp.data)
+    // })
+    // {
+    //     //取所有学生数据
+    //     getAllStudents();{
+    //         var _this=this;
+    //         axios({
+    //             method:"get",
+    //             url:"http://localhost/students"
+    //         }).then(function (resp) {
+    //             console.log(resp.data.data);
+    //         })
+    //     },
+    //      //处理查询表单
+    //     onsubmit();{
+    //         console.log(this.student);
+    //     },
+    // //    处理表格
+    //     tableRowClassName({row,rowIndex});{
+    //         if(rowIndex==1){
+    //             return 'warning -row';
+    //         }else if(rowIndex==3){
+    //             return 'success -row';
+    //         }
+    //     }
+    // }
+</script>
+</html>
